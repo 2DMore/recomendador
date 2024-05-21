@@ -29,18 +29,18 @@ Route::get('/login',function(){
     return view('auth.login');
 });
 
-Route::get('/added',function(){
+Route::get('/listar',function(){
     return view('user.added');
 });
 
-Route::get('/listado',function(){
+Route::get('/nuevos',function(){
     return view('user.list');
 });
 
 Route::get('/estadisticas',function(){
     return view('user.statisticsView');
 });
-Route::get('/listar',function(){
+Route::get('/validados',function(){
     return view('user.validated');
 });
 
@@ -48,7 +48,7 @@ Route::get('/newlist',function(){
     return view('validator.newListView');
 });
 
-Route::get('/vallist',function(){
+Route::get('/capturados',function(){
     return view('validator.validationListView');
 });
 

@@ -31,7 +31,7 @@ function get_nav_elements() {
 	//global $option;
 	//$index = $option - 1;
 	$navbar_options = [
-		0=>[
+		0=>[//Administrador
 			[
 				'link'=>'./listar',
 				'img_source'=>'images/document.svg',
@@ -53,7 +53,7 @@ function get_nav_elements() {
 				'text' => 'Estadísticas',
 			]
 		],
-		1=>[
+		1=>[//Usuario
 			[
 				'link'=>'./nuevos',
 				'img_source'=>'images/edit.svg',
@@ -70,7 +70,7 @@ function get_nav_elements() {
 				'text' => 'Estadísticas',
 			]
 		],
-		2=>[
+		2=>[//Validadores
 			[
 				'link'=>'./newlist',
 				'img_source'=>'images/edit.svg',
