@@ -17,11 +17,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/home',function(){
+Route::get('/usuarios',function(){
     return view('admin.index');
 });
 
-Route::get('/newuser',function(){
+Route::get('/agregar-usuarios',function(){
     return view('admin.create-user');
 });
 
@@ -33,12 +33,15 @@ Route::get('/added',function(){
     return view('user.added');
 });
 
-Route::get('/list',function(){
+Route::get('/listado',function(){
     return view('user.list');
 });
 
-Route::get('/stats',function(){
+Route::get('/estadisticas',function(){
     return view('user.statisticsView');
+});
+Route::get('/listar',function(){
+    return view('user.validated');
 });
 
 Route::get('/newlist',function(){

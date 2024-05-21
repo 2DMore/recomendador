@@ -1,13 +1,13 @@
 
-    
+@include ('partials.header')
+    @include ('partials.navbar')
 <div class="content">
     <div class="title">
         <h3>Documentos agregados</h3>
     </div>
 
     <div class="body">
-    @include ('partials.header')
-    @include ('partials.navbar')
+    
         <div class="list">
             <?php foreach($this->model->listar() as $r): ?>
                 <!-- <tr>
