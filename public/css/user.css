@@ -1,0 +1,98 @@
+#drag-pdf {
+    border: 3px dashed gray;
+    width: 100%;
+    height: 100px;
+    margin-bottom: 40px;
+    cursor: pointer;
+    position: relative;
+    /* display: none; */
+}
+
+#drag-pdf::after {
+    position: absolute;
+    /* margin: 10px 100px; */
+    /* margin-left: 50px; */
+    width: 100%;
+    height: 100%;
+    /* top: 10px; */
+    font-size: 60px;
+    color: gray;
+    content: "Agregar PDF";
+    text-align: center;
+}
+
+/*
+#drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 20px;
+    width: 100%;
+    font-family: sans-serif;
+    margin: 100px auto;
+    padding: 20px;
+}
+
+#drop-area.highlight {
+    border-color: purple;
+} */
+
+.inputItem {
+    margin-bottom: 20px;
+    width: 80%;
+    position: relative;
+    display: inline-block;
+}
+
+.inputItem input {
+    width: calc(100% - 200px);
+    padding: 5px;
+    border-radius: 7px;
+    outline: none;
+    border: 1px solid #8c8c8c;
+    border-color: #bbbbbb;
+    /* background-color: rgb(226, 226, 226); */
+}
+
+.inputItem input:focus {
+    /* background-color: white; */
+    border-color: white;
+    /* box-shadow: 0px 0px 2px 1px darkgrey; */
+    box-shadow: 0px 0px 2px .5px #062146;
+}
+
+.inputItem label {
+    display: inline-block;
+    width: 195px;
+}
+
+.newInput .inputItem::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    top: 50%;
+    border-top: 2px solid black;
+}
+
+.newInput .inputItem:first-child::after {
+    width: 40px;
+    z-index: -1;
+}
+
+.newInput .inputItem::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    right: -20px;
+    border-right: 2px solid black;
+}
+
+.newInput .inputItem:last-child::before {
+    /* border-right-color: black; */
+    height: 150%;
+    bottom: 50%;
+}
+
+.newInput .inputItem:only-child:before {
+    /* border-right-color: black; */
+    height: 0;
+    /* bottom: 50%; */
+}

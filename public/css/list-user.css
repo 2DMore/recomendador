@@ -1,0 +1,14 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+table>thead, table>tbody>tr {
+    border-bottom: 2px solid #aaaaaa;
+}
+
+table>tbody td{
+    text-align: center;
+    padding: 7px;
+}

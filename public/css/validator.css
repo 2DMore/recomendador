@@ -1,0 +1,32 @@
+.list>div.listItem:first-child {
+    border-top: 2px solid black;
+}
+
+.listItem {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid black;
+    padding: 5px 10px;
+}
+
+.item .name {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.listItem .added, .listItem .date {
+    color: #515151;
+    font-size: 15px;
+}
+
+.watchItemBtn{
+    color: black;
+    background-color: white;
+    background-image: url(../images/arrow.svg);
+    background-repeat: no-repeat;
+    background-position: center, center;
+}
+
+.watchItemBtn:hover{
+    background-color: gainsboro;
+}
