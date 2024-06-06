@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,8 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+/*Login*/
+Route::post('/userlogin', [UserController::class, 'login']);
+
+Route::post('/register', [UserController::class, 'register']);
+
+Route::post('/logout', [UserController::class, 'logout']);
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/usuarios',function(){
@@ -55,4 +63,6 @@ Route::get('/capturados',function(){
 Route::get('/notfound',function(){
     return view('404');
 });
+
+
 

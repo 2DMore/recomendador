@@ -3,18 +3,56 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\InvertedIndex;
 use App\Models\Document;
+use App\Models\User;
 
-class userController extends Controller
+class UserController extends Controller
 {
-    private $model;
+    /*private $model;
     public function __CONSTRUCT() {
         $this->model = new Document();
-    }
+    }*/
     
     function accion_listar() {
         include ('views/user/list.php');
+    }
+
+    public function logout(){
+        auth()->logout();
+        return redirect("/");
+    }
+
+    public function register(Request $request){
+        
+        $datos = $request->validate([
+            'name' => ['required', Rule::unique('users', 'name')],
+            'email' => ['required', Rule::unique('users', 'email')],
+            'password' => ['required']
+        ]);
+        $datos['password']=bcrypt($datos['password']);
+        $user=User::create($datos);
+        //$user=new User;
+        //$user->name=$datos['name'];
+        //$user->email=$datos['email'];
+        //$user->password=$datos['password'];
+        //$user->save();
+        auth()->login($user);
+        return redirect('/estadisticas');
+    }
+
+    public function login(Request $request){
+        $datos= $request->validate([
+            'login_name'=>'required',
+            'login_password'=>'required'
+        ]);
+
+        if (auth()->attempt(['name' => $datos['login_name'], 'password'=>$datos['login_password']])){
+            $request->session()->regenerate();
+        }
+
+        return redirect('/estadisticas');
     }
     
     function accion_guardar() {
@@ -78,7 +116,7 @@ class userController extends Controller
         return 'moved';
     }
 
-    function savePDF($data, $pages, $arr) {
+    /*function savePDF($data, $pages, $arr) {
         $pdfText = '';
         // var_dump($arr);
         foreach ($pages as $page) {
@@ -102,5 +140,5 @@ class userController extends Controller
         //     'other_details' => '...'
         // ];
         $this->model->guardar($document);
-    }
+    }*/
 }
