@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\userController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,3 +57,6 @@ Route::get('/notfound',function(){
     return view('404');
 });
 
+
+//Documentos
+Route::post('/nuevos/store', [userController::class,'guardarDoc']);

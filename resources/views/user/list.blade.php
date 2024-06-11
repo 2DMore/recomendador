@@ -7,11 +7,12 @@
         </div>
         <div class="body">
             <div id="drop-area">
-                <form method="post" action="./guardar"  enctype='multipart/form-data'>
+                <form method="post" action="/nuevos/store"  enctype='multipart/form-data'>
+                    @csrf
                     <input name="pdf" accept="application/pdf" style="display:block;" type="file">
-                    <div id="drag-pdf">
-                        <!-- <input type="file"  name="drag-pdf" placeholder="drag file" hidden> -->
-                    </div>
+                    <!--<div id="drag-pdf">
+                        <input type="file"  name="drag-pdf" placeholder="drag file" hidden>
+                    </div>-->
                     <div style="text-align: right; margin-bottom: 20px;">
                         <button type="button" class="btn successBtn">Agregar campos adicionales</button>
                     </div>
@@ -20,11 +21,11 @@
                     <div class="fields">
                         <div class="inputItem">
                             <label for="">Title (dc:title)</label>
-                            <input type="text" name="dc:title">
+                            <input type="text" name="dc:title" value="{{session('metadata')['Title'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Creator (dc:creator)</label>
-                            <input type="text" name="dc:creator">
+                            <input type="text" name="dc:creator" value="{{session('metadata')['Author'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Access Level (dc:rights)</label>

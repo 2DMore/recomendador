@@ -17,7 +17,26 @@ class Document extends Model
     public $content;
     public $other_details;
 
-    public function __CONSTRUCT() {
+    protected $fillable = [
+        'title',
+        'path',
+        'creator',
+        'access_level',
+        'license_condition',
+        'contributor',
+        'pub_date',
+        'pub_type',
+        'resource_identifier',
+        'proj_identifier',
+        'date',
+        'dataset_ref',
+        'subject',
+        'description',
+        'publisher',
+        'language',
+    ];
+
+    /*public function __CONSTRUCT() {
 		try {
             $this->db = Database::connect();
             //$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -25,7 +44,7 @@ class Document extends Model
 		catch(Exception $e) {
 			die($e->getMessage());
 		}
-	}
+	}*/
     
     public function printTest() {
         return 'document class function print test';

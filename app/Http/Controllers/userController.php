@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\InvertedIndex;
 use App\Models\Document;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class userController extends Controller
 {
@@ -102,5 +104,41 @@ class userController extends Controller
         //     'other_details' => '...'
         // ];
         $this->model->guardar($document);
+    }
+
+    public function guardarDoc(Request $request){
+        $request->validate([
+            'pdf'=>'required|mimes:pdf|max:2048'
+        ]);
+
+        if($request->file('pdf')){
+            $file=$request->file('pdf');
+
+            // Obtener el nombre original del archivo
+            $originalName = $file->getClientOriginalName();
+
+            // Crear un nombre único para el archivo
+            $uniqueName = Str::uuid() . '_' . $originalName;
+            $filePath=$file->storeAs('pdfs',$uniqueName,'public');
+
+            $absolutePath=storage_path(('app/public/'.$filePath));
+
+            //Extracccion de metadatos
+            $parser=new \Smalot\PdfParser\Parser();
+            $parsedPDF=$parser->parseFile($absolutePath);
+            $metadata=$parsedPDF->getDetails();
+
+            /*Estos datos ponerlos en otra funcion cuando se busque actualizar los metadatos*/ 
+            $pdf=new Document();
+            $pdf->title= $metadata['Title'] ?? $originalName;
+            $pdf->creator=$metadata['Author'] ?? 'No encontrado';
+            $pdf->description=$metadata['Subject'] ?? 'No encontrado';
+            $pdf->path=$filePath;
+            $pdf->save();
+
+            return redirect('/nuevos')->with('metadata', $metadata);
+
+        }
+
     }
 }
