@@ -60,3 +60,4 @@ Route::get('/notfound',function(){
 
 //Documentos
 Route::post('/nuevos/store', [userController::class,'guardarDoc']);
+Route::post('/nuevos/submit', [userController::class,'subirMetadatos']);

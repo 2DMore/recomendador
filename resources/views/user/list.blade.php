@@ -7,13 +7,20 @@
         </div>
         <div class="body">
             <div id="drop-area">
-                <form method="post" action="/nuevos/store"  enctype='multipart/form-data'>
+                <form id="metaForm" method="post" action=""  enctype='multipart/form-data'>
                     @csrf
-                    <input name="pdf" accept="application/pdf" style="display:block;" type="file">
+                    @if(!Session::has('pdf_path'))
+                        <input name="pdf" accept="application/pdf" style="display:block;" type="file">
+                    @else
+                        <p>Archivo PDF ya subido. Si deseas cambiarlo, sube un nuevo archivo.</p>
+                        <input name="pdf" accept="application/pdf" style="display:block;" type="file">
+                        <input type="hidden" name="pdf_path" value="{{ Session::get('pdf_path') }}">
                     <!--<div id="drag-pdf">
                         <input type="file"  name="drag-pdf" placeholder="drag file" hidden>
                     </div>-->
+                    @endif
                     <div style="text-align: right; margin-bottom: 20px;">
+                        <button type="submit" onclick="submitForm(this)" value="guardar">Subir pdf</button>
                         <button type="button" class="btn successBtn">Agregar campos adicionales</button>
                     </div>
                     <!-- <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)"> -->
@@ -115,7 +122,7 @@
                         </div> -->
                     </div>
                     
-                    <button class="btn successBtn" type="submit" name="submit">Aceptar</button>
+                    <button class="btn successBtn" type="submit" onclick="submitForm(this)" name="submit" value="submit">Aceptar</button>
                     
 
                    
@@ -128,10 +135,23 @@
     @include ('user.addInputModalView')
     </div>
     <script>
+    function submitForm(button){
+        var form=document.getElementById('metaForm');
+        if (button.value === 'guardar') {
+            form.action = "nuevos/store";
+        } else {
+            form.action = "nuevos/submit";
+        }
+        form.submit();
+    }
+    
     document.querySelector('button[type=button]').addEventListener(
         'click', () => {
             document.querySelector('body').classList.toggle('modal-open');
         }
     );
+
+    
+
     </script>
 @include ('partials.footer')

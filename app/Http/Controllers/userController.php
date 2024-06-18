@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\InvertedIndex;
 use App\Models\Document;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Session;
 
 class userController extends Controller
 {
@@ -123,22 +123,45 @@ class userController extends Controller
 
             $absolutePath=storage_path(('app/public/'.$filePath));
 
+            Session::put('pdf_path', $filePath);
+
             //Extracccion de metadatos
             $parser=new \Smalot\PdfParser\Parser();
             $parsedPDF=$parser->parseFile($absolutePath);
             $metadata=$parsedPDF->getDetails();
 
+            
+            Session::put('metadata', $metadata);
+
             /*Estos datos ponerlos en otra funcion cuando se busque actualizar los metadatos*/ 
-            $pdf=new Document();
+            /*$pdf=new Document();
             $pdf->title= $metadata['Title'] ?? $originalName;
             $pdf->creator=$metadata['Author'] ?? 'No encontrado';
             $pdf->description=$metadata['Subject'] ?? 'No encontrado';
             $pdf->path=$filePath;
-            $pdf->save();
+            $pdf->save();*/
 
-            return redirect('/nuevos')->with('metadata', $metadata);
+            return redirect('/nuevos');
 
         }
+        return redirect()->back()->withErrors('Error al subir el archivo.');
 
+
+    }
+
+    public function subirMetadatos(Request $request){
+        $pdfPath=Session::get('pdf_path');
+        if(!$pdfPath){
+            return redirect()->back()->withErrors('No se encontró el archivo PDF en la sesión.');
+        }
+        $pdf=new Document();
+        $metadata=Session::get('metadata');
+        $pdf->title= $metadata['Title'] ?? 'No encontrado';
+        $pdf->creator=$metadata['Author'] ?? 'No encontrado';
+        $pdf->description=$metadata['Subject'] ?? 'No encontrado';
+        $pdf->path=$pdfPath;
+        $pdf->save();
+
+        return redirect('/nuevos');
     }
 }
