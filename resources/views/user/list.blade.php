@@ -20,7 +20,7 @@
                     </div>-->
                     @endif
                     <div style="text-align: right; margin-bottom: 20px;">
-                        <button type="submit" onclick="submitForm(this)" value="guardar">Subir pdf</button>
+                        <button type="submit" class="btn primaryBtn" onclick="submitForm(this)" value="guardar">Subir pdf</button>
                         <button type="button" class="btn successBtn">Agregar campos adicionales</button>
                     </div>
                     <!-- <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)"> -->
@@ -32,64 +32,64 @@
                         </div>
                         <div class="inputItem">
                             <label for="">Creator (dc:creator)</label>
-                            <input type="text" name="dc:creator" value="{{session('metadata')['Author'] ?? ''}}">
+                            <input type="text" name="dc:creator" value="{{session('metadata')['Creator'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Access Level (dc:rights)</label>
-                            <input type="text" name="dc:rights">
+                            <input type="text" name="dc:rights" value="{{session('metadata')['Rights'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">License Condition (dc:rights)</label>
-                            <input type="text" name="dc:rights">
+                            <input type="text" name="dc:license" value="{{session('metadata')['Licence'] ?? ''}}">
                         </div>
                        
                         <div class="inputItem">
                             <label for="">Contributor (dc:contributor)</label>
-                            <input type="text" name="dc:contributor">
+                            <input type="text" name="dc:contributor" value="{{session('metadata')['Contributor'] ?? ''}}">
                         </div>
                        
                         <div class="inputItem">
                             <label for="">Publication Date (dc:date)</label>
-                            <input type="text" name="dc:date">
+                            <input type="text" name="dc:date" value="{{session('metadata')['Date'] ?? ''}}">
                         </div>
                        
                         <div class="inputItem">
                             <label for="">Publication Type (dc:type)</label>
-                            <input type="text" name="dc:type">
+                            <input type="text" name="dc:type" value="{{session('metadata')['Type'] ?? ''}}">
                         </div>
                        
                         <div class="inputItem">
                             <label for="">Resource Identifier (dc:identifier)</label>
-                            <input type="text" name="dc:identifier">
+                            <input type="text" name="dc:identifier" value="{{session('metadata')['Identifier'] ?? ''}}">
                         </div>
                        
                         <div class="inputItem">
                             <label for="">Project Identifier (dc:relation)</label>
-                            <input type="text" name="dc:relation">
+                            <input type="text" name="dc:relation" value="{{session('metadata')['Relation'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Date (dc:date)</label>
-                            <input type="text" name="dc:date">
+                            <input type="text" name="dc:date" value="{{session('metadata')['Date'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Dataset Reference (dc:relation)</label>
-                            <input type="text" name="dc:relation">
+                            <input type="text" name="dc:reference"value="{{session('metadata')['Reference'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Subject (dc:subject)</label>
-                            <input type="text" name="dc:subject">
+                            <input type="text" name="dc:subject" value="{{session('metadata')['Subject'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Description (dc:description)</label>
-                            <input type="text" name="dc:description">
+                            <input type="text" name="dc:description" value="{{session('metadata')['Description'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Publisher (dc:publisher)</label>
-                            <input type="text" name="dc:publisher">
+                            <input type="text" name="dc:publisher" value="{{session('metadata')['Publisher'] ?? ''}}">
                         </div>
                         <div class="inputItem">
                             <label for="">Language (dc:language)</label>
-                            <input type="text" name="dc:language">
+                            <input type="text" name="dc:language" value="{{session('metadata')['Language'] ?? ''}}">
                             <!-- este podría ser un select?-->
                         </div>
 

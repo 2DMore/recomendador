@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\InvertedIndex;
 use App\Models\Document;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 
 class userController extends Controller
@@ -130,6 +131,125 @@ class userController extends Controller
             $parsedPDF=$parser->parseFile($absolutePath);
             $metadata=$parsedPDF->getDetails();
 
+            $text=$parsedPDF->getPages()[0]->getText();
+
+            $prompt="Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
+                - Title: [Título del recurso]\n
+                - Creator: [Nombre del autor o creador]\n
+                - Subject: [Tema o asunto del recurso]\n
+                - Description: [Descripción del contenido]\n
+                - Publisher: [Nombre del editor]\n
+                - Contributor: [Otros contribuidores]\n
+                - Date: [Fecha de creación o publicación]\n
+                - Type: [Tipo de recurso]\n
+                - Format: [Formato del recurso]\n
+                - Identifier: [Identificador único]\n
+                - Source: [Fuente original del recurso]\n
+                - Language: [Idioma del recurso]\n
+                - Relation: [Relaciones con otros recursos]\n
+                - Coverage: [Cobertura espacial o temporal]\n
+                - Rights: [Derechos de uso y acceso]: \n\n
+                Texto:" . $text;
+
+            $maxPromptTokens=1024;
+            $tokens=$this->countTokens($prompt);
+
+            if ($tokens > $maxPromptTokens) {
+                // Limitar el texto si excede el número máximo de tokens
+                $words = explode(' ', $text);
+                $limitedText = implode(' ', array_slice($words, 0, intval($maxPromptTokens / 1.3)));
+                $prompt = "Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
+                - Title: [Título del recurso]\n
+                - Creator: [Nombre del autor o creador]\n
+                - Subject: [Tema o asunto del recurso]\n
+                - Description: [Descripción del contenido]\n
+                - Publisher: [Nombre del editor]\n
+                - Contributor: [Otros contribuidores]\n
+                - Date: [Fecha de creación o publicación]\n
+                - Type: [Tipo de recurso]\n
+                - Format: [Formato del recurso]\n
+                - Identifier: [Identificador único]\n
+                - Source: [Fuente original del recurso]\n
+                - Language: [Idioma del recurso]\n
+                - Relation: [Relaciones con otros recursos]\n
+                - Coverage: [Cobertura espacial o temporal]\n
+                - Rights: [Derechos de uso y acceso]: \n\n
+                Texto:" . $limitedText;
+            }
+
+            $apiKey = env('ANTHROPIC_API_KEY');
+            $url = 'https://api.anthropic.com/v1/messages';
+            //Utilizar model haiku si se consumen muchos tokens
+            $response = Http::withHeaders([
+                'x-api-key' => $apiKey,
+                'anthropic-version' => '2023-06-01',
+                'Content-Type' => 'application/json',
+            ])->post($url, [
+                'model' => 'claude-3-sonnet-20240229',
+                'max_tokens' => 1024,
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ]
+            ]);
+
+            if ($response->successful()) {
+                // Decodificar el mensaje JSON
+                
+                $data = json_decode($response, true);
+                
+                // Extraer el texto del contenido
+                $text = $data['content'][0]['text'];
+
+                // Expresión regular para extraer los metadatos
+                $pattern = "/- Title:\s*(?<Title>.*?)\n\n" .
+                "- Creator:\s*(?<Creator>.*?)\n\n" .
+                "- Subject:\s*(?<Subject>.*?)\n\n" .
+                "- Description:\s*(?<Description>.*?)\n\n" .
+                "- Publisher:\s*(?<Publisher>.*?)\n\n" .
+                "- Contributor:\s*(?<Contributor>.*?)\n\n" .
+                "- Date:\s*(?<Date>.*?)\n\n" .
+                "- Type:\s*(?<Type>.*?)\n\n" .
+                "- Format:\s*(?<Format>.*?)\n\n" .
+                "- Identifier:\s*(?<Identifier>.*?)\n\n" .
+                "- Source:\s*(?<Source>.*?)\n\n" .
+                "- Language:\s*(?<Language>.*?)\n\n" .
+                "- Relation:\s*(?<Relation>.*?)\n\n" .
+                "- Coverage:\s*(?<Coverage>.*?)\n\n" .
+                "- Rights:\s*(?<Rights>.*?)(?:\n|$)/s";
+
+
+                if (preg_match($pattern, $text, $matches)) {
+                    $metadata = [
+                        'Title' => $matches['Title'],
+                        'Creator' => $matches['Creator'],
+                        'Subject' => $matches['Subject'],
+                        'Description' => $matches['Description'],
+                        'Publisher' => $matches['Publisher'],
+                        'Contributor' => $matches['Contributor'],
+                        'Date' => $matches['Date'],
+                        'Type' => $matches['Type'],
+                        'Format' => $matches['Format'],
+                        'Identifier' => $matches['Identifier'],
+                        'Source' => $matches['Source'],
+                        'Language' => $matches['Language'],
+                        'Relation' => $matches['Relation'],
+                        'Coverage' => $matches['Coverage'],
+                        'Rights' => $matches['Rights']
+                    ];
+                }
+                if (empty($metadata)) {
+                    return response()->json(['error' => 'No metadata found'], 404);
+                }
+
+            } else {
+                return response()->json([
+                    'error' => 'Failed to communicate with the API',
+                    'message' => $response->body()
+                ], $response->status());
+            }
+
+            //dd($response);
+            
             
             Session::put('metadata', $metadata);
 
@@ -156,12 +276,29 @@ class userController extends Controller
         }
         $pdf=new Document();
         $metadata=Session::get('metadata');
-        $pdf->title= $metadata['Title'] ?? 'No encontrado';
-        $pdf->creator=$metadata['Author'] ?? 'No encontrado';
-        $pdf->description=$metadata['Subject'] ?? 'No encontrado';
+        $pdf->title= $request->input('dc:title') ?? 'No encontrado';
+        $pdf->creator=$request->input('dc:creator') ?? 'No encontrado';
+        $pdf->access_level=$request->input('dc:rights') ?? 'No encontrado';
+        $pdf->contributor=$request->input('dc:contributor') ?? 'No encontrado';
+        $pdf->date=$request->input('dc:date') ?? 'No encontrado';
+        $pdf->pub_type=$request->input('dc:type') ?? 'No encontrado';
+        $pdf->resource_identifier=$request->input('dc:identifier') ?? 'No encontrado';
+        $pdf->proj_identifier=$request->input('dc:relation') ?? 'No encontrado';
+        $pdf->subject=$request->input('dc:subject') ?? 'No encontrado';
+        $pdf->description=$request->input('dc:description') ?? 'No encontrado';
+        $pdf->publisher=$request->input('dc:publisher') ?? 'No encontrado';
+        $pdf->language=$request->input('dc:language') ?? 'No encontrado';
+
         $pdf->path=$pdfPath;
         $pdf->save();
 
         return redirect('/nuevos');
+    }
+
+    public function countTokens($text) {
+        // Aproximación basada en el número de palabras
+        $words = explode(' ', $text);
+        $numTokens = count($words) * 1.3; // Aproximación: cada palabra es 1.3 tokens
+        return ceil($numTokens);
     }
 }
