@@ -27,26 +27,33 @@
         </div>
     @else
         <div class="loginForm">
+            <@php
+
+            @endphp
             <img class="logo" src="images/UADY_logo.svg" alt="" srcset="">
-            <form action="/userlogin" method="POST">
+            <form action="/register" method="POST">
                 @csrf
                 <div class="loginField">
                     <label for="">Usuario</label>
-                    <input name="login_name" type="text">
+                    <input name="name" type="text">
                 </div>
-                
+
+                <div class="loginField">
+                    <label for="">email</label>
+                    <input name="email" type="text">
+                </div>
+
                 <div class="loginField">
                     <label for="">Contraseña</label>
-                    <input name="login_password"  type="password">
+                    <input name="password"  type="password">
                 </div>
 
                 <button type="submit" class="btn successBtn mb1">Ingresar</button>
-                <button class="btn resetPassword ">Recuperar contraseña</button>
             </form>
         </div>
     @endauth
 
-    
+
 
 </body>
 

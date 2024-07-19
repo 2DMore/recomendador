@@ -21,7 +21,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'documentsUploaded',
+        'rol'
     ];
+
+    //Creame una funcion que me devuelva todos los documentos que ha subido un usuario
+
+    public function documents(){
+        return $this->hasMany(Document::class);
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

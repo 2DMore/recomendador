@@ -43,7 +43,8 @@
                     <label for="">Rol</label>
                     <div class="inputField">
                         <select>
-                            <option selected>Elige un rol</option>
+                            <option selected>tasker</option>
+                            <option selected>reviewer</option>
                         </select>
                     </div>
                 </div>

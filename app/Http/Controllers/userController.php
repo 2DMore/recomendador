@@ -14,7 +14,7 @@ class UserController extends Controller
     public function __CONSTRUCT() {
         $this->model = new Document();
     }*/
-    
+
     function accion_listar() {
         include ('views/user/list.php');
     }
@@ -25,19 +25,16 @@ class UserController extends Controller
     }
 
     public function register(Request $request){
-        
+
         $datos = $request->validate([
             'name' => ['required', Rule::unique('users', 'name')],
             'email' => ['required', Rule::unique('users', 'email')],
-            'password' => ['required']
+            'password' => ['required'],
         ]);
         $datos['password']=bcrypt($datos['password']);
+        $datos['rol'] = 1;
+        session(['user_type' => $datos['rol']]);
         $user=User::create($datos);
-        //$user=new User;
-        //$user->name=$datos['name'];
-        //$user->email=$datos['email'];
-        //$user->password=$datos['password'];
-        //$user->save();
         auth()->login($user);
         return redirect('/estadisticas');
     }
@@ -50,11 +47,13 @@ class UserController extends Controller
 
         if (auth()->attempt(['name' => $datos['login_name'], 'password'=>$datos['login_password']])){
             $request->session()->regenerate();
+            $user = auth()->user();
+            session(['user_type' => $user->rol]);
         }
 
         return redirect('/estadisticas');
     }
-    
+
     function accion_guardar() {
         global $auth_first_page;
         if(isset($_POST['submit'])) {
@@ -72,11 +71,11 @@ class UserController extends Controller
     function accion_capturados(){
         include ('views/user/added.php');
     }
-    
+
     function accion_validados(){
         include ('views/user/validated.php');
     }
-    
+
     function accion_estadisticas(){
         include ('views/user/statisticsView.php');
     }
@@ -86,17 +85,17 @@ class UserController extends Controller
         $pdf = $_FILES["pdf"];
         if($pdf['error']) return 'Error en el archivo';
         if($pdf['type'] != 'application/pdf') return 'No es un pdf';
-    
+
         $new_name = time() . '.pdf';//add the user's id at the beggining
         $location = './uploads/';
         $file_store = $location . $new_name;
         $fileWasMoved = move_uploaded_file($pdf['tmp_name'], $file_store);
-        
-        if(!$fileWasMoved) return 'cannot moved';       
-    
+
+        if(!$fileWasMoved) return 'cannot moved';
+
         $parser = new \Smalot\PdfParser\Parser();
         $pdfData = $parser->parseFile($file_store);
-        
+
         $details = $pdfData->getDetails();
         foreach ($details as $property => $value) {
             if (is_array($value)) {
@@ -104,7 +103,7 @@ class UserController extends Controller
             }
             echo $property . ' => ' . $value . "<br>";
         }
-    
+
         $pages  = $pdfData->getPages();
         // Loop over each page to extract text.
         // foreach ($pages as $page) {
@@ -134,9 +133,9 @@ class UserController extends Controller
             'no extras'
         );
         // $arr = [
-        //     'name' => $data['name'], 
-        //     'content' => $pdfText, 
-        //     'description' => '...', 
+        //     'name' => $data['name'],
+        //     'content' => $pdfText,
+        //     'description' => '...',
         //     'other_details' => '...'
         // ];
         $this->model->guardar($document);
