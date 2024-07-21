@@ -5,6 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\InvertedIndex;
 use App\Models\Document;
+use App\Models\DocumentAudiencia;
+use App\Models\DocumentCitacion;
+use App\Models\DocumentCobertura;
+use App\Models\DocumentColaborador;
+use App\Models\DocumentCreator;
+use App\Models\DocumentEditor;
+use App\Models\DocumentFormato;
+use App\Models\DocumentIdioma;
+use App\Models\DocumentMateria;
+use App\Models\DocumentProject;
+use App\Models\DocumentReferenciaDatos;
+use App\Models\DocumentReferenciaIdentificador;
+use App\Models\DocumentReferenciaPublicacion;
+use App\Models\DocumentRelacion;
+use App\Models\DocumentResultadoCientifico;
+use App\Models\DocumentResumen;
+use App\Models\DocumentTitle;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -237,15 +254,23 @@ class userController extends Controller
                         'Rights' => $matches['Rights']
                     ];
                 }
-                if (empty($metadata)) {
+                if (empty($metadata)) { //En caso de quedarnos sin creditos
                     return response()->json(['error' => 'No metadata found'], 404);
                 }
 
             } else {
+                /*Conservar esto en caso de que se necesite saber que error hay al usar la API
                 return response()->json([
                     'error' => 'Failed to communicate with the API',
                     'message' => $response->body()
                 ], $response->status());
+                */
+                foreach ($metadata as $key => $value) {
+                    if (!empty($value)) {
+
+                        Session::put('metadata.' . $key, $value);
+                    }
+                }
             }
 
             //dd($response);
@@ -274,23 +299,210 @@ class userController extends Controller
         if(!$pdfPath){
             return redirect()->back()->withErrors('No se encontró el archivo PDF en la sesión.');
         }
-        $pdf=new Document();
-        $metadata=Session::get('metadata');
-        $pdf->title= $request->input('dc:title') ?? 'No encontrado';
-        $pdf->creator=$request->input('dc:creator') ?? 'No encontrado';
-        $pdf->access_level=$request->input('dc:rights') ?? 'No encontrado';
-        $pdf->contributor=$request->input('dc:contributor') ?? 'No encontrado';
-        $pdf->date=$request->input('dc:date') ?? 'No encontrado';
-        $pdf->pub_type=$request->input('dc:type') ?? 'No encontrado';
-        $pdf->resource_identifier=$request->input('dc:identifier') ?? 'No encontrado';
-        $pdf->proj_identifier=$request->input('dc:relation') ?? 'No encontrado';
-        $pdf->subject=$request->input('dc:subject') ?? 'No encontrado';
-        $pdf->description=$request->input('dc:description') ?? 'No encontrado';
-        $pdf->publisher=$request->input('dc:publisher') ?? 'No encontrado';
-        $pdf->language=$request->input('dc:language') ?? 'No encontrado';
+        $document=new Document();
+        $document->access_level= $request->input('access_level') ?? 'No encontrado';
+        $document->license_condition=$request->input('license_condition') ?? 'No encontrado';
+        $document->pub_date=$request->input('pub_date') ?? 'No encontrado';
+        $document->pub_version=$request->input('pub_version') ?? 'No encontrado';
+        $document->pub_id=$request->input('pub_id') ?? 'No encontrado';
+        $document->resource_id=$request->input('resource_id') ?? 'No encontrado';
+        $document->source=$request->input('source') ?? 'No encontrado';
+        $document->embargo_end_date=$request->input('embargo_date') ?? 'No encontrado';
 
-        $pdf->path=$pdfPath;
-        $pdf->save();
+        $document->path=$pdfPath;
+
+
+        $document->save();
+
+        if (!$document->id) {
+            return response()->json([
+                'error' => 'No se encontro ID',
+                'message' => 'NO SE ENCONTRO ID'
+            ]);
+        }
+
+        // Guardar datos en tabla DocumentAudiencia
+        if ($request->has('audiencia')) {
+            foreach ($request->input('audiencia') as $audiencia) {
+                $documentAudiencia = new DocumentAudiencia();
+                $documentAudiencia->document_id = $document->id;
+                $documentAudiencia->audiencia = $audiencia;
+                $documentAudiencia->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentCitacion
+        if ($request->has('citacion')) {
+            foreach ($request->input('citacion') as $citacion) {
+                $documentCitacion = new DocumentCitacion();
+                $documentCitacion->document_id = $document->id;
+                $documentCitacion->citacion = $citacion;
+                $documentCitacion->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentCobertura
+        if ($request->has('cobertura')) {
+            foreach ($request->input('cobertura') as $cobertura) {
+                $documentCobertura = new DocumentCobertura();
+                $documentCobertura->document_id = $document->id;
+                $documentCobertura->cobertura = $cobertura;
+                $documentCobertura->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentColaborador
+        if ($request->has('contributor') && $request->has('id_contributor_type') && $request->has('id_contributor')) {
+            $contributors = $request->input('contributor');
+            $idContributorTypes = $request->input('id_contributor_type');
+            $idContributors = $request->input('id_contributor');
+    
+            foreach ($contributors as $index => $contributor) {
+                $documentColaborador = new DocumentColaborador();
+                $documentColaborador->document_id = $document->id;
+                $documentColaborador->contributor = $contributor;
+                $documentColaborador->contributor_id = $idContributors[$index];
+                $documentColaborador->contributor_id_type = $idContributorTypes[$index];
+                $documentColaborador->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentCreator
+        if ($request->has('creator') && $request->has('id_creator_type') && $request->has('id_creator')) {
+            $creators = $request->input('creator');
+            $idCreatorTypes = $request->input('id_creator_type');
+            $idCreators = $request->input('id_creator');
+    
+            foreach ($creators as $index => $creator) {
+                $documentCreator = new DocumentCreator();
+                $documentCreator->document_id = $document->id;
+                $documentCreator->creator = $creator;
+                $documentCreator->creator_id = $idCreators[$index];
+                $documentCreator->creator_id_type = $idCreatorTypes[$index];
+                $documentCreator->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentEditor
+        if ($request->has('editor')) {
+            foreach ($request->input('editor') as $editor) {
+                $documentEditor = new DocumentEditor();
+                $documentEditor->document_id = $document->id;
+                $documentEditor->editor = $editor;
+                $documentEditor->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentFormat
+        if ($request->has('format')) {
+            foreach ($request->input('format') as $format) {
+                $documentFormat = new DocumentFormato();
+                $documentFormat->document_id = $document->id;
+                $documentFormat->format = $format;
+                $documentFormat->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentIdioma
+        if ($request->has('idioma')) {
+            foreach ($request->input('idioma') as $idioma) {
+                $documentIdioma = new DocumentIdioma();
+                $documentIdioma->document_id = $document->id;
+                $documentIdioma->idioma = $idioma;
+                $documentIdioma->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentMateria
+        if ($request->has('materia')) {
+            foreach ($request->input('materia') as $materia) {
+                $documentMateria = new DocumentMateria();
+                $documentMateria->document_id = $document->id;
+                $documentMateria->materia = $materia;
+                $documentMateria->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentProject
+        if ($request->has('project_id')) {
+            foreach ($request->input('project_id') as $project_id) {
+                $documentProject = new DocumentProject();
+                $documentProject->document_id = $document->id;
+                $documentProject->project_id = $project_id;
+                $documentProject->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentReferenciaDatos
+        if ($request->has('ref_datos')) {
+            foreach ($request->input('ref_datos') as $ref_datos) {
+                $documentRefDatos = new DocumentReferenciaDatos();
+                $documentRefDatos->document_id = $document->id;
+                $documentRefDatos->ref_datos = $ref_datos;
+                $documentRefDatos->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentReferenciaIdentificador
+        if ($request->has('ref_identificador')) {
+            foreach ($request->input('ref_identificador') as $ref_identificador) {
+                $documentRefIdentificador = new DocumentReferenciaIdentificador();
+                $documentRefIdentificador->document_id = $document->id;
+                $documentRefIdentificador->ref_identificador = $ref_identificador;
+                $documentRefIdentificador->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentReferenciaPublicacion
+        if ($request->has('ref_publicacion')) {
+            foreach ($request->input('ref_publicacion') as $ref_publicacion) {
+                $documentRefPublicacion = new DocumentReferenciaPublicacion();
+                $documentRefPublicacion->document_id = $document->id;
+                $documentRefPublicacion->ref_publicacion = $ref_publicacion;
+                $documentRefPublicacion->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentRelacion
+        if ($request->has('relacion')) {
+            foreach ($request->input('relacion') as $relacion) {
+                $documentRelacion = new DocumentRelacion();
+                $documentRelacion->document_id = $document->id;
+                $documentRelacion->relacion = $relacion;
+                $documentRelacion->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentResultadoCientifico
+        if ($request->has('res_cientifico')) {
+            foreach ($request->input('res_cientifico') as $res_cientifico) {
+                $documentResCientifico = new DocumentResultadoCientifico();
+                $documentResCientifico->document_id = $document->id;
+                $documentResCientifico->res_cientifico = $res_cientifico;
+                $documentResCientifico->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentResumen
+        if ($request->has('resumen')) {
+            foreach ($request->input('resumen') as $resumen) {
+                $documentResumen = new DocumentResumen();
+                $documentResumen->document_id = $document->id;
+                $documentResumen->resumen = $resumen;
+                $documentResumen->save();
+            }
+        }
+
+        // Guardar datos en tabla DocumentTitle
+        if ($request->has('title')) {
+            foreach ($request->input('title') as $title) {
+                $documentTitle = new DocumentTitle();
+                $documentTitle->document_id = $document->id;
+                $documentTitle->title = $title;
+                $documentTitle->save();
+            }
+        }
+
 
         return redirect('/nuevos');
     }
