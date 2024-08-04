@@ -63,7 +63,7 @@ class userController extends Controller
         include ('views/user/statisticsView.php');
     }
 
-    //enviar çon código de errores en return??
+    //enviar çon código de errores en return??NO UTILIZADO
     function moveFile() {
         $pdf = $_FILES["pdf"];
         if($pdf['error']) return 'Error en el archivo';
@@ -97,7 +97,7 @@ class userController extends Controller
         $this->savePDF($pdf, $pages, $invIndex->getInvertedIndex());
         return 'moved';
     }
-
+    //Funcion no utilizada
     function savePDF($data, $pages, $arr) {
         $pdfText = '';
         // var_dump($arr);

@@ -16,16 +16,17 @@ class loginDspaceService{
     {
         try {
             $client=new Client();
-            $data=[
+            $this->data=[
                 'email'=>env('DSPACE_EMAIL'),
                 'password'=>env('DSPACE_PASSWORD')
             ];
-            echo "Iniciando login en {", env('URLSERVIDOR').'/rest/login' ,"}\n";
+            //echo "Iniciando login en {", env('URLSERVIDOR').'/rest/login' ,"}\n";
+            $this->url= env('URLSERVIDOR').'/rest/login';
             $response = $client->post($this->url, [
-                'form_params' => $data
+                'form_params' => $this->data
             ]);
             $cookies = $response->getHeader('Set-Cookie');
-            echo "Cookies: " . implode(', ', $cookies) . "\n";
+            //echo "Cookies: " . implode(', ', $cookies) . "\n";
             return $cookies;
         } catch (Exception $e) {
             echo "No se pudo iniciar sesión en el servidor:\n";

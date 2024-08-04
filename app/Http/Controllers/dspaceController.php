@@ -27,8 +27,9 @@ class dspaceController extends Controller
         //Obtener id de un boton de una vista
         $id=$request->input('id_doc');
         $sessionCookie=$this->loginDspaceService->loginDspace();
-        $this->uploadDspaceService->importDB($sessionCookie, $id);
-        return response()->json(['message' => 'Metadatos subidos correctamente']);
+        //dd($sessionCookie);
+        $message=$this->uploadDspaceService->importDB($sessionCookie, $id);
+        return redirect()->back()->with('status', $message);
          
     }
 }
