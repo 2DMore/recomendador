@@ -15,6 +15,11 @@ class UserController extends Controller
         $this->model = new Document();
     }*/
 
+    function getAllUsers() {
+        $users = User::all();
+        return response()->json($users);
+    }
+
     function accion_listar() {
         include ('views/user/list.php');
     }
@@ -25,27 +30,24 @@ class UserController extends Controller
     }
 
     public function register(Request $request){
-
         $datos = $request->validate([
             'name' => ['required', Rule::unique('users', 'name')],
             'email' => ['required', Rule::unique('users', 'email')],
             'password' => ['required'],
+            'rol' => ['required'],
         ]);
         $datos['password']=bcrypt($datos['password']);
-        $datos['rol'] = 1;
         session(['user_type' => $datos['rol']]);
-        $user=User::create($datos);
-        auth()->login($user);
-        return redirect('/estadisticas');
+        User::create($datos);
     }
 
     public function login(Request $request){
         $datos= $request->validate([
-            'login_name'=>'required',
-            'login_password'=>'required'
+            'email'=>'required',
+            'password'=>'required'
         ]);
 
-        if (auth()->attempt(['name' => $datos['login_name'], 'password'=>$datos['login_password']])){
+        if (auth()->attempt(['email' => $datos['email'], 'password'=>$datos['password']])){
             $request->session()->regenerate();
             $user = auth()->user();
             session(['user_type' => $user->rol]);

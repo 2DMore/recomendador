@@ -7,19 +7,19 @@
     </div>
 
     <div class="body">
-    
+
         <div class="list">
             <?php foreach($this->model->listar() as $r): ?>
-                <!-- <tr>
+                <tr>
                     <td>
                         <a onclick="javascript:return confirm('¿Seguro de eliminar este registro?');" href="?c=Alumno&a=Eliminar&id=<?php echo $r->id; ?>">Eliminar</a>
-                    </td> 
-                </tr> -->
+                    </td>
+                </tr>
 
                 <div class="listItem">
                     <div class="item">
                         <p class="name"><?= $r->name; ?></p>
-                        <label class="added">Agregado: 
+                        <label class="added">Agregado:
                             <span class="date"><?= $r->created_at;?></span>
                         </label>
                     </div>
