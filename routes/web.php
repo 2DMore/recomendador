@@ -4,7 +4,6 @@
 use App\Http\Controllers\UserController;
 
 use App\Http\Controllers\dspaceController;
-use App\Http\Controllers\userController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -73,8 +72,8 @@ Route::get('/notfound',function(){
 
 
 //Documentos
-Route::post('/nuevos/store', [userController::class,'guardarDoc']);
-Route::post('/nuevos/submit', [userController::class,'subirMetadatos']);
+Route::post('/nuevos/store', [UserController::class,'guardarDoc']);
+Route::post('/nuevos/submit', [UserController::class,'subirMetadatos']);
 //Metadatos
 Route::post('/upload/metadatos', [dspaceController::class,'subirMetadatosDspace']);
 
