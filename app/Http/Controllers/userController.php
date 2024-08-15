@@ -107,7 +107,7 @@ class UserController extends Controller
         include ('views/user/statisticsView.php');
     }
 
-    //enviar çon código de errores en return??
+    //enviar çon código de errores en return??NO UTILIZADO
     function moveFile() {
         $pdf = $_FILES["pdf"];
         if($pdf['error']) return 'Error en el archivo';
@@ -141,6 +141,7 @@ class UserController extends Controller
         $this->savePDF($pdf, $pages, $invIndex->getInvertedIndex());
         return 'moved';
     }
+
 
     /*function savePDF($data, $pages, $arr) {
         $pdfText = '';
