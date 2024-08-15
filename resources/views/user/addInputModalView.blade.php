@@ -8,19 +8,20 @@
                 <div class="field" style="display:flex;">
                     <select name="type" id="type">
                         <option selected hidden disabled value="0">Selecciona un campo</option>
-                        <!-- <option value="dc. creator">dc. creator</option> -->
-                        <option value="dc:relation">Alternative Identifier (dc:relation)</option>
-                        <option value="dc:relation">Publication Reference (dc:relation)</option>
-                        <option value="dc:contributor">Id Contributor (dc:contributor)</option>
-                        <option value="dc:type">Publication Version (dc:type)</option>
-                        <option value="dc:type">Publication Identifier (dc:type)</option>
-                        <option value="dc:format">Format (dc:format)</option>
-                        <option value="dc:source">Source (dc:source)</option>
-                        <option value="dc:coverage">Coverage (dc:coverage)</option>
-                        <option value="dc:audience">Audience (dc:audience)</option>
-                        <option value="dc:relation">Relation (dc:relation)</option>
+                        <option value="title[]">Title(dc:title)</option>
+                        <option value="project_id[]">Project Identifier(dc:relation)</option>
+                        <option value="ref_identificador[]">Alternative Identifier (dc:relation)</option>
+                        <option value="ref_publicacion[]">Publication Reference (dc:relation)</option>
+                        <option value="ref_datos[]">Dataset Reference (dc:relation)</option>
+                        <option value="editor[]">Publisher (dc:publisher)</option>
+                        <option value="res_cientifico[]">Publication Type (dc:type)</option>
+                        <option value="format[]">Format (dc:format)</option>
+                        <option value="idioma[]">Language (dc:language)</option>
+                        <option value="cobertura[]">Coverage (dc:coverage)</option>
+                        <option value="audiencia[]">Audience (dc:audience)</option>
+                        <option value="relacion[]">Relation (dc:relation)</option>
+                        <option value="citacion[]">Citacion (dc:relation)</option>
                     </select>
-                    <button class="btn primaryBtn" style="margin-left: 1rem;">Agregar</button>
                 </div>
             </div>
             <div class="modal-footer">

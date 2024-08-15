@@ -11,7 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('document_titles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('document_id')->constrained()->onDelete('cascade');
+            $table->text('title');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -19,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('document_titles');
     }
 };

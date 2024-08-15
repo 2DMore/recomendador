@@ -1,6 +1,10 @@
 <?php
 
+
 use App\Http\Controllers\UserController;
+
+use App\Http\Controllers\dspaceController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,6 +40,8 @@ Route::get('/agregar-usuarios',function(){
     return view('admin.create-user');
 });
 
+Route::get('/upload',[dspaceController::class, 'obtenerDocumentos']);
+
 Route::get('/login',function(){
     return view('auth.login');
 });
@@ -68,4 +74,9 @@ Route::get('/notfound',function(){
 });
 
 
+//Documentos
+Route::post('/nuevos/store', [UserController::class,'guardarDoc']);
+Route::post('/nuevos/submit', [UserController::class,'subirMetadatos']);
+//Metadatos
+Route::post('/upload/metadatos', [dspaceController::class,'subirMetadatosDspace']);
 

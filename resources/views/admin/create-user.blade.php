@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="inputItem">
-                    <label for="">Contraseña</label>
+                    <label for="">ContraseÃ±a</label>
                     <div class="inputField">
                         <input name="password" type="password" id="password">
                     </div>
@@ -50,7 +50,7 @@
                 </div>
                 @csrf
                 <div class="actions">
-                    <button class="btn successBtn">Validar</button>
+                    <button  type="submit" class="btn successBtn">Validar</button>
                 </div>
             </form>
         </div>
