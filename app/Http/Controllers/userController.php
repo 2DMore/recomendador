@@ -48,27 +48,26 @@ class UserController extends Controller
     }
 
     public function register(Request $request){
-
         $datos = $request->validate([
             'name' => ['required', Rule::unique('users', 'name')],
             'email' => ['required', Rule::unique('users', 'email')],
             'password' => ['required'],
+            'rol' => ['required'],
         ]);
         $datos['password']=bcrypt($datos['password']);
-        $datos['rol'] = 1;
         session(['user_type' => $datos['rol']]);
-        $user=User::create($datos);
-        auth()->login($user);
-        return redirect('/estadisticas');
+        User::create($datos);
+
+        return redirect("/agregar-usuarios");
     }
 
     public function login(Request $request){
         $datos= $request->validate([
-            'login_name'=>'required',
-            'login_password'=>'required'
+            'email'=>'required',
+            'password'=>'required'
         ]);
 
-        if (auth()->attempt(['name' => $datos['login_name'], 'password'=>$datos['login_password']])){
+        if (auth()->attempt(['email' => $datos['email'], 'password'=>$datos['password']])){
             $request->session()->regenerate();
             $user = auth()->user();
             session(['user_type' => $user->rol]);
@@ -163,7 +162,7 @@ class UserController extends Controller
         // ];
         $this->model->guardar($document);
     }*/
-    }
+    
 
     public function guardarDoc(Request $request){
         $request->validate([
@@ -194,19 +193,15 @@ class UserController extends Controller
             $prompt="Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
                 - Title: [Título del recurso]\n
                 - Creator: [Nombre del autor o creador]\n
+                - Publication Date: [Fecha de publicación]\n
+                - Publication Type: [Tipo de recurso]\n
+                - Resource Identifier: [Identificador único del recurso]\n
+                - Contributor: [Otros contribuidores]\n
+                - Publisher: [Nombre del editor]\n
                 - Subject: [Tema o asunto del recurso]\n
                 - Description: [Descripción del contenido]\n
-                - Publisher: [Nombre del editor]\n
-                - Contributor: [Otros contribuidores]\n
-                - Date: [Fecha de creación o publicación]\n
-                - Type: [Tipo de recurso]\n
-                - Format: [Formato del recurso]\n
-                - Identifier: [Identificador único]\n
                 - Source: [Fuente original del recurso]\n
-                - Language: [Idioma del recurso]\n
-                - Relation: [Relaciones con otros recursos]\n
-                - Coverage: [Cobertura espacial o temporal]\n
-                - Rights: [Derechos de uso y acceso]: \n\n
+                - Language: [Idioma del recurso]\n\n
                 Texto:" . $text;
 
             $maxPromptTokens=1024;
@@ -219,19 +214,15 @@ class UserController extends Controller
                 $prompt = "Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
                 - Title: [Título del recurso]\n
                 - Creator: [Nombre del autor o creador]\n
+                - Publication Date: [Fecha de publicación]\n
+                - Publication Type: [Tipo de recurso]\n
+                - Resource Identifier: [Identificador único del recurso]\n
+                - Contributor: [Otros contribuidores]\n
+                - Publisher: [Nombre del editor]\n
                 - Subject: [Tema o asunto del recurso]\n
                 - Description: [Descripción del contenido]\n
-                - Publisher: [Nombre del editor]\n
-                - Contributor: [Otros contribuidores]\n
-                - Date: [Fecha de creación o publicación]\n
-                - Type: [Tipo de recurso]\n
-                - Format: [Formato del recurso]\n
-                - Identifier: [Identificador único]\n
                 - Source: [Fuente original del recurso]\n
-                - Language: [Idioma del recurso]\n
-                - Relation: [Relaciones con otros recursos]\n
-                - Coverage: [Cobertura espacial o temporal]\n
-                - Rights: [Derechos de uso y acceso]: \n\n
+                - Language: [Idioma del recurso]\n\n
                 Texto:" . $limitedText;
             }
 
@@ -259,40 +250,32 @@ class UserController extends Controller
                 $text = $data['content'][0]['text'];
 
                 // Expresión regular para extraer los metadatos
-                $pattern = "/- Title:\s*(?<Title>.*?)\n\n" .
-                "- Creator:\s*(?<Creator>.*?)\n\n" .
-                "- Subject:\s*(?<Subject>.*?)\n\n" .
-                "- Description:\s*(?<Description>.*?)\n\n" .
-                "- Publisher:\s*(?<Publisher>.*?)\n\n" .
-                "- Contributor:\s*(?<Contributor>.*?)\n\n" .
-                "- Date:\s*(?<Date>.*?)\n\n" .
-                "- Type:\s*(?<Type>.*?)\n\n" .
-                "- Format:\s*(?<Format>.*?)\n\n" .
-                "- Identifier:\s*(?<Identifier>.*?)\n\n" .
-                "- Source:\s*(?<Source>.*?)\n\n" .
-                "- Language:\s*(?<Language>.*?)\n\n" .
-                "- Relation:\s*(?<Relation>.*?)\n\n" .
-                "- Coverage:\s*(?<Coverage>.*?)\n\n" .
-                "- Rights:\s*(?<Rights>.*?)(?:\n|$)/s";
+                $pattern = "/- Title:\s*(?<Title>.*?)\n" .
+                "- Creator:\s*(?<Creator>.*?)\n" .
+                "- Publication Date:\s*(?<PublicationDate>.*?)\n" .
+                "- Publication Type:\s*(?<PublicationType>.*?)\n" .
+                "- Resource Identifier:\s*(?<ResourceIdentifier>.*?)\n" .
+                "- Contributor:\s*(?<Contributor>.*?)\n" .
+                "- Publisher:\s*(?<Publisher>.*?)\n" .
+                "- Subject:\s*(?<Subject>.*?)\n" .
+                "- Description:\s*(?<Description>.*?)\n" .
+                "- Source:\s*(?<Source>.*?)\n" .
+                "- Language:\s*(?<Language>.*?)(?:\n|$)/s";
 
 
                 if (preg_match($pattern, $text, $matches)) {
                     $metadata = [
-                        'Title' => $matches['Title'],
-                        'Creator' => $matches['Creator'],
-                        'Subject' => $matches['Subject'],
-                        'Description' => $matches['Description'],
-                        'Publisher' => $matches['Publisher'],
-                        'Contributor' => $matches['Contributor'],
-                        'Date' => $matches['Date'],
-                        'Type' => $matches['Type'],
-                        'Format' => $matches['Format'],
-                        'Identifier' => $matches['Identifier'],
-                        'Source' => $matches['Source'],
-                        'Language' => $matches['Language'],
-                        'Relation' => $matches['Relation'],
-                        'Coverage' => $matches['Coverage'],
-                        'Rights' => $matches['Rights']
+                        'Title' => $matches['Title'] ?? '',
+                        'Creator' => $matches['Creator'] ?? '',
+                        'Publication Date' => $matches['PublicationDate'] ?? '',
+                        'Publication Type' => $matches['PublicationType'] ?? '',
+                        'Resource Identifier' => $matches['ResourceIdentifier'] ?? '',
+                        'Contributor' => $matches['Contributor'] ?? '',
+                        'Publisher' => $matches['Publisher'] ?? '',
+                        'Subject' => $matches['Subject'] ?? '',
+                        'Description' => $matches['Description'] ?? '',
+                        'Source' => $matches['Source'] ?? '',
+                        'Language' => $matches['Language'] ?? '',
                     ];
                 }
                 if (empty($metadata)) { //En caso de quedarnos sin creditos
@@ -300,18 +283,18 @@ class UserController extends Controller
                 }
 
             } else {
-                /*Conservar esto en caso de que se necesite saber que error hay al usar la API
+                
                 return response()->json([
                     'error' => 'Failed to communicate with the API',
                     'message' => $response->body()
                 ], $response->status());
-                */
-                foreach ($metadata as $key => $value) {
+                
+                /*foreach ($metadata as $key => $value) {
                     if (!empty($value)) {
 
                         Session::put('metadata.' . $key, $value);
                     }
-                }
+                }*/
             }
 
             //dd($response);

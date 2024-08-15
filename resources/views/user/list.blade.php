@@ -73,28 +73,28 @@
                         <!--(6)Condiciones de licencia  OBLIGATORIO NO REPETIBLE-->
                         <div class="inputItem">
                             <label for="">License Condition (dc:rights)</label>
-                            <input type="text" name="license_condition" value="{{session('metadata')['Licence'] ?? ''}}" required>
+                            <input type="text" name="license_condition" value="" required>
                         </div>
                        
                        <!--(16) Fecha de publicacion OBLIGATORIO NO REPETIBLE-->
                         <div class="inputItem">
                             <label for="">Publication Date (dc:date)</label>
-                            <input type="text" name="pub_date" value="{{session('metadata')['Date'] ?? ''}}" placeholder="AAAA-MM-DD" required>
+                            <input type="text" name="pub_date" value="{{session('metadata')['Publication Date'] ?? ''}}" placeholder="AAAA-MM-DD" required>
                         </div>
                        <!--(17) Tipo de resultado cientifico OBLIGATORIO NO REPETIBLE-->
                         <div class="inputItem">
                             <label for="">Publication Type (dc:type)</label>
-                            <input type="text" name="pub_type" value="{{session('metadata')['Type'] ?? ''}}" required>
+                            <input type="text" name="pub_type" value="{{session('metadata')['Publication Type'] ?? ''}}" required>
                         </div>
                         <!-- (21)Identificador del Recurso OBLIGATORIO NO REPETIBLE-->
                         <div class="inputItem">
                             <label for="">Resource Identifier (dc:identifier)</label>
-                            <input type="text" name="resource_id" value="{{session('metadata')['Identifier'] ?? ''}}" required>
+                            <input type="text" name="resource_id" value="{{session('metadata')['Resource Identifier'] ?? ''}}" required>
                         </div>
                         <!--(4)Identificador del proyecto OBLIGATORIO CUANDO APLICA REPETIBLE-->
                         <div class="inputItem">
                             <label for="">Project Identifier (dc:relation)</label>
-                            <input type="text" name="project_id[]" value="{{session('metadata')['Relation'] ?? ''}}">
+                            <input type="text" name="project_id[]" value="">
                         </div>
                         <!--(14,15)Colaboradores u otros autores REPETIBLE OBLIGATORIO SI APLICA (Traductores, asesores, revisores, ilustradores)-->
                         <div class="contributors-group">
@@ -155,7 +155,7 @@
                         <!--(22)Fuente NO REPETIBLE-->
                         <div class="inputItem">
                             <label for="">Source (dc:source)</label>
-                            <input type="text" name="source" value="">
+                            <input type="text" name="source" value="{{session('metadata')['Source'] ?? ''}}">
                         </div>
                         <!--(23)Idioma OBLIGATORIO CUANDO APLICA REPETIBLE-->
                         <div class="inputItem">

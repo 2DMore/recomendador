@@ -1,4 +1,7 @@
         <!-- <input type="checkbox" name="sidebar" id="sidebar"> -->
+<?php
+require_once app_path() . '/Helpers/NavBarHelper.php';
+?>
 <!DOCTYPE html>
         <div class="sideContainer">
     <nav class="sidebar active">
@@ -30,6 +33,4 @@
 </div>
 {{-- Importa la función de NavBarHelper.php de la carpeta Helpers --}}
 
-<?php
-require_once app_path() . '/Helpers/NavBarHelper.php';
-?>
+

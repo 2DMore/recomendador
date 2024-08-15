@@ -24,37 +24,36 @@
                 <div class="inputItem">
                     <label for="">Nombre</label>
                     <div class="inputField">
-                        <input name="name" type="text">
+                        <input name="name" type="text" id="name">
                     </div>
                 </div>
                 <div class="inputItem">
                     <label for="">Correo</label>
                     <div class="inputField">
-                        <input name="email" type="mail">
+                        <input name="email" type="mail" id="email">
                     </div>
                 </div>
                 <div class="inputItem">
-                    <label for="">Contraseña</label>
+                    <label for="">ContraseÃ±a</label>
                     <div class="inputField">
-                        <input name="password" type="password">
+                        <input name="password" type="password" id="password">
                     </div>
                 </div>
                 <div class="inputItem">
                     <label for="">Rol</label>
                     <div class="inputField">
-                        <select>
-                            <option selected>tasker</option>
-                            <option selected>reviewer</option>
+                        <select name="rol" id="rol">
+                            <option value="1">tasker</option>
+                            <option value="1">reviewer</option>
                         </select>
                     </div>
                 </div>
-
+                @csrf
                 <div class="actions">
-                    <button class="btn successBtn">Validar</button>
+                    <button  type="submit" class="btn successBtn">Validar</button>
                 </div>
             </form>
         </div>
     </div>
 </body>
-
 </html>
