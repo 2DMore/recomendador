@@ -50,7 +50,7 @@
                 </div>
                 @csrf
                 <div class="actions">
-                    <button  type="submit" class="btn successBtn">Validar</button>
+                    <button class="btn successBtn">Validar</button>
                 </div>
             </form>
         </div>
