@@ -14,22 +14,46 @@
 </head>
 
 <body>
-    <div class="loginForm">
-        <img class="logo" src="images/UADY_logo.svg" alt="" srcset="">
-        <form action="">
-            <div class="loginField">
-                <label for="">Usuario</label>
-                <input type="text">
-            </div>
-            <div class="loginField">
-                <label for="">Contraseña</label>
-                <input type="password">
-            </div>
 
-            <button class="btn successBtn mb1">Ingresar</button>
-            <button class="btn resetPassword ">Recuperar contraseña</button>
-        </form>
-    </div>
+    @auth
+        <div class="loginForm">
+            <img class="logo" src="images/UADY_logo.svg" alt="" srcset="">
+            <form action="/logout" method="POST">
+                <button class="dangerBtn">Cerrar sesión</button>
+            </form>
+            <form action="/home" method="POST">
+                <button class="primaryBtn">Cerrar sesión</button>
+            </form>
+        </div>
+    @else
+        <div class="loginForm">
+            <@php
+
+            @endphp
+            <img class="logo" src="images/UADY_logo.svg" alt="" srcset="">
+            <form action="/register" method="POST">
+                @csrf
+                <div class="loginField">
+                    <label for="">Usuario</label>
+                    <input name="name" type="text">
+                </div>
+
+                <div class="loginField">
+                    <label for="">email</label>
+                    <input name="email" type="text">
+                </div>
+
+                <div class="loginField">
+                    <label for="">Contraseña</label>
+                    <input name="password"  type="password">
+                </div>
+
+                <button type="submit" class="btn successBtn mb1">Ingresar</button>
+            </form>
+        </div>
+    @endauth
+
+
 
 </body>
 

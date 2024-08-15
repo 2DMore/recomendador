@@ -20,37 +20,39 @@
         </div>
 
         <div class="body">
+            <form action="/register" method="POST">
+                <div class="inputItem">
+                    <label for="">Nombre</label>
+                    <div class="inputField">
+                        <input name="name" type="text">
+                    </div>
+                </div>
+                <div class="inputItem">
+                    <label for="">Correo</label>
+                    <div class="inputField">
+                        <input name="email" type="mail">
+                    </div>
+                </div>
+                <div class="inputItem">
+                    <label for="">Contraseña</label>
+                    <div class="inputField">
+                        <input name="password" type="password">
+                    </div>
+                </div>
+                <div class="inputItem">
+                    <label for="">Rol</label>
+                    <div class="inputField">
+                        <select>
+                            <option selected>tasker</option>
+                            <option selected>reviewer</option>
+                        </select>
+                    </div>
+                </div>
 
-            <div class="inputItem">
-                <label for="">Nombre</label>
-                <div class="inputField">
-                    <input type="text">
+                <div class="actions">
+                    <button class="btn successBtn">Validar</button>
                 </div>
-            </div>
-            <div class="inputItem">
-                <label for="">Correo</label>
-                <div class="inputField">
-                    <input type="mail">
-                </div>
-            </div>
-            <div class="inputItem">
-                <label for="">Contraseña</label>
-                <div class="inputField">
-                    <input type="password">
-                </div>
-            </div>
-            <div class="inputItem">
-                <label for="">Rol</label>
-                <div class="inputField">
-                    <select>
-                        <option selected>Elige un rol</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="actions">
-                <button class="btn successBtn">Validar</button>
-            </div>
+            </form>
         </div>
     </div>
 </body>
