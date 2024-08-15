@@ -1,5 +1,8 @@
         <!-- <input type="checkbox" name="sidebar" id="sidebar"> -->
-        <!DOCTYPE html>
+<?php
+require_once app_path() . '/Helpers/NavBarHelper.php';
+?>
+<!DOCTYPE html>
         <div class="sideContainer">
     <nav class="sidebar active">
         <a class="logo" href="">
@@ -10,8 +13,10 @@
         <!-- <img style="float:right;" src="../../Desktop/STK-20200827-WA0046.webp" alt="" srcset="" height="100%"> -->
 
         <div class="options-nav">
+
+
         <!--Opciones de navegacion borradas agregarlas despues -->
-        <?php foreach (get_nav_elements() as $element): ?>
+        <?php foreach (get_nav_elements(session('user_type')) as $element): ?>
                 <a class="option" href="<?php echo $element['link']; ?>">
                     <img class="optionIcon" src="<?php echo $element['img_source']; ?>" alt="">
                     <label><?php echo $element['text']; ?></label>
@@ -22,79 +27,10 @@
                     <img class="optionIcon" src="images/graph.svg" alt="">
                     <label>Cerrar sesión</label>
                 </a>
-            
+
         </div>
     </nav>
 </div>
-<?php
-function get_nav_elements() {
-	//global $option;
-	//$index = $option - 1;
-	$navbar_options = [
-		0=>[//Administrador
-			[
-				'link'=>'./listar',
-				'img_source'=>'images/document.svg',
-				'text' => 'Listado de documentos',
-			],
-			[
-				'link'=>'./usuarios',
-				'img_source'=>'images/users.svg',
-				'text' => 'Gestionar usuarios',
-			],
-			[
-				'link'=>'./agregar-usuarios',
-				'img_source'=>'images/user.svg',
-				'text' => 'Agregar usuarios',
-			],
-			[
-				'link'=>'./estadisticas',
-				'img_source'=>'images/graph.svg',
-				'text' => 'Estadísticas',
-			]
-		],
-		1=>[//Usuario
-			[
-				'link'=>'./nuevos',
-				'img_source'=>'images/edit.svg',
-				'text' => 'Documentos nuevos',
-			],
-			[
-				'link'=>'./validados',
-				'img_source'=>'images/files.svg',
-				'text' => 'Documentos validados',
-			],
-			[
-				'link'=>'./estadisticas',
-				'img_source'=>'images/graph.svg',
-				'text' => 'Estadísticas',
-			]
-		],
-		2=>[//Validadores
-			[
-				'link'=>'./newlist',
-				'img_source'=>'images/edit.svg',
-				'text' => 'Documentos registrados',
-			],
-			[
-				'link'=>'./capturados',
-				'img_source'=>'images/files.svg',
-				'text' => 'Documentos capturados',
-			],
+{{-- Importa la función de NavBarHelper.php de la carpeta Helpers --}}
 
-			[
-				'link'=>'./validados',
-				'img_source'=>'images/valid.svg',
-				'text' => 'Validados',
-			],
-			[
-				'link'=>'./estadisticas',
-				'img_source'=>'images/graph.svg',
-				'text' => 'Estadísticas',
-			]
-		],
-	];
-	return $navbar_options[0];//[$index];
-}
 
-?>

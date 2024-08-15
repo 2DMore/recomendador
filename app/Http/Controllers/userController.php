@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\InvertedIndex;
 use App\Models\Document;
+
+use App\Models\User;
+
 use App\Models\DocumentAudiencia;
 use App\Models\DocumentCitacion;
 use App\Models\DocumentCobertura;
@@ -26,17 +30,57 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 
-class userController extends Controller
+
+class UserController extends Controller
 {
-    private $model;
+    /*private $model;
     public function __CONSTRUCT() {
         $this->model = new Document();
+    }*/
+
+    function getAllUsers() {
+        $users = User::all();
+        return response()->json($users);
     }
-    
+
     function accion_listar() {
         include ('views/user/list.php');
     }
-    
+
+    public function logout(){
+        auth()->logout();
+        return redirect("/");
+    }
+
+    public function register(Request $request){
+        $datos = $request->validate([
+            'name' => ['required', Rule::unique('users', 'name')],
+            'email' => ['required', Rule::unique('users', 'email')],
+            'password' => ['required'],
+            'rol' => ['required'],
+        ]);
+        $datos['password']=bcrypt($datos['password']);
+        session(['user_type' => $datos['rol']]);
+        User::create($datos);
+
+        return redirect("/agregar-usuarios");
+    }
+
+    public function login(Request $request){
+        $datos= $request->validate([
+            'email'=>'required',
+            'password'=>'required'
+        ]);
+
+        if (auth()->attempt(['email' => $datos['email'], 'password'=>$datos['password']])){
+            $request->session()->regenerate();
+            $user = auth()->user();
+            session(['user_type' => $user->rol]);
+        }
+
+        return redirect('/estadisticas');
+    }
+
     function accion_guardar() {
         global $auth_first_page;
         if(isset($_POST['submit'])) {
@@ -54,11 +98,11 @@ class userController extends Controller
     function accion_capturados(){
         include ('views/user/added.php');
     }
-    
+
     function accion_validados(){
         include ('views/user/validated.php');
     }
-    
+
     function accion_estadisticas(){
         include ('views/user/statisticsView.php');
     }
@@ -68,17 +112,17 @@ class userController extends Controller
         $pdf = $_FILES["pdf"];
         if($pdf['error']) return 'Error en el archivo';
         if($pdf['type'] != 'application/pdf') return 'No es un pdf';
-    
+
         $new_name = time() . '.pdf';//add the user's id at the beggining
         $location = './uploads/';
         $file_store = $location . $new_name;
         $fileWasMoved = move_uploaded_file($pdf['tmp_name'], $file_store);
-        
-        if(!$fileWasMoved) return 'cannot moved';       
-    
+
+        if(!$fileWasMoved) return 'cannot moved';
+
         $parser = new \Smalot\PdfParser\Parser();
         $pdfData = $parser->parseFile($file_store);
-        
+
         $details = $pdfData->getDetails();
         foreach ($details as $property => $value) {
             if (is_array($value)) {
@@ -86,7 +130,7 @@ class userController extends Controller
             }
             echo $property . ' => ' . $value . "<br>";
         }
-    
+
         $pages  = $pdfData->getPages();
         // Loop over each page to extract text.
         // foreach ($pages as $page) {
@@ -97,8 +141,9 @@ class userController extends Controller
         $this->savePDF($pdf, $pages, $invIndex->getInvertedIndex());
         return 'moved';
     }
-    //Funcion no utilizada
-    function savePDF($data, $pages, $arr) {
+
+
+    /*function savePDF($data, $pages, $arr) {
         $pdfText = '';
         // var_dump($arr);
         foreach ($pages as $page) {
@@ -116,13 +161,14 @@ class userController extends Controller
             'no extras'
         );
         // $arr = [
-        //     'name' => $data['name'], 
-        //     'content' => $pdfText, 
-        //     'description' => '...', 
+        //     'name' => $data['name'],
+        //     'content' => $pdfText,
+        //     'description' => '...',
         //     'other_details' => '...'
         // ];
         $this->model->guardar($document);
-    }
+    }*/
+    
 
     public function guardarDoc(Request $request){
         $request->validate([
@@ -153,19 +199,15 @@ class userController extends Controller
             $prompt="Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
                 - Title: [Título del recurso]\n
                 - Creator: [Nombre del autor o creador]\n
+                - Publication Date: [Fecha de publicación]\n
+                - Publication Type: [Tipo de recurso]\n
+                - Resource Identifier: [Identificador único del recurso]\n
+                - Contributor: [Otros contribuidores]\n
+                - Publisher: [Nombre del editor]\n
                 - Subject: [Tema o asunto del recurso]\n
                 - Description: [Descripción del contenido]\n
-                - Publisher: [Nombre del editor]\n
-                - Contributor: [Otros contribuidores]\n
-                - Date: [Fecha de creación o publicación]\n
-                - Type: [Tipo de recurso]\n
-                - Format: [Formato del recurso]\n
-                - Identifier: [Identificador único]\n
                 - Source: [Fuente original del recurso]\n
-                - Language: [Idioma del recurso]\n
-                - Relation: [Relaciones con otros recursos]\n
-                - Coverage: [Cobertura espacial o temporal]\n
-                - Rights: [Derechos de uso y acceso]: \n\n
+                - Language: [Idioma del recurso]\n\n
                 Texto:" . $text;
 
             $maxPromptTokens=1024;
@@ -178,19 +220,15 @@ class userController extends Controller
                 $prompt = "Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
                 - Title: [Título del recurso]\n
                 - Creator: [Nombre del autor o creador]\n
+                - Publication Date: [Fecha de publicación]\n
+                - Publication Type: [Tipo de recurso]\n
+                - Resource Identifier: [Identificador único del recurso]\n
+                - Contributor: [Otros contribuidores]\n
+                - Publisher: [Nombre del editor]\n
                 - Subject: [Tema o asunto del recurso]\n
                 - Description: [Descripción del contenido]\n
-                - Publisher: [Nombre del editor]\n
-                - Contributor: [Otros contribuidores]\n
-                - Date: [Fecha de creación o publicación]\n
-                - Type: [Tipo de recurso]\n
-                - Format: [Formato del recurso]\n
-                - Identifier: [Identificador único]\n
                 - Source: [Fuente original del recurso]\n
-                - Language: [Idioma del recurso]\n
-                - Relation: [Relaciones con otros recursos]\n
-                - Coverage: [Cobertura espacial o temporal]\n
-                - Rights: [Derechos de uso y acceso]: \n\n
+                - Language: [Idioma del recurso]\n\n
                 Texto:" . $limitedText;
             }
 
@@ -218,40 +256,32 @@ class userController extends Controller
                 $text = $data['content'][0]['text'];
 
                 // Expresión regular para extraer los metadatos
-                $pattern = "/- Title:\s*(?<Title>.*?)\n\n" .
-                "- Creator:\s*(?<Creator>.*?)\n\n" .
-                "- Subject:\s*(?<Subject>.*?)\n\n" .
-                "- Description:\s*(?<Description>.*?)\n\n" .
-                "- Publisher:\s*(?<Publisher>.*?)\n\n" .
-                "- Contributor:\s*(?<Contributor>.*?)\n\n" .
-                "- Date:\s*(?<Date>.*?)\n\n" .
-                "- Type:\s*(?<Type>.*?)\n\n" .
-                "- Format:\s*(?<Format>.*?)\n\n" .
-                "- Identifier:\s*(?<Identifier>.*?)\n\n" .
-                "- Source:\s*(?<Source>.*?)\n\n" .
-                "- Language:\s*(?<Language>.*?)\n\n" .
-                "- Relation:\s*(?<Relation>.*?)\n\n" .
-                "- Coverage:\s*(?<Coverage>.*?)\n\n" .
-                "- Rights:\s*(?<Rights>.*?)(?:\n|$)/s";
+                $pattern = "/- Title:\s*(?<Title>.*?)\n" .
+                "- Creator:\s*(?<Creator>.*?)\n" .
+                "- Publication Date:\s*(?<PublicationDate>.*?)\n" .
+                "- Publication Type:\s*(?<PublicationType>.*?)\n" .
+                "- Resource Identifier:\s*(?<ResourceIdentifier>.*?)\n" .
+                "- Contributor:\s*(?<Contributor>.*?)\n" .
+                "- Publisher:\s*(?<Publisher>.*?)\n" .
+                "- Subject:\s*(?<Subject>.*?)\n" .
+                "- Description:\s*(?<Description>.*?)\n" .
+                "- Source:\s*(?<Source>.*?)\n" .
+                "- Language:\s*(?<Language>.*?)(?:\n|$)/s";
 
 
                 if (preg_match($pattern, $text, $matches)) {
                     $metadata = [
-                        'Title' => $matches['Title'],
-                        'Creator' => $matches['Creator'],
-                        'Subject' => $matches['Subject'],
-                        'Description' => $matches['Description'],
-                        'Publisher' => $matches['Publisher'],
-                        'Contributor' => $matches['Contributor'],
-                        'Date' => $matches['Date'],
-                        'Type' => $matches['Type'],
-                        'Format' => $matches['Format'],
-                        'Identifier' => $matches['Identifier'],
-                        'Source' => $matches['Source'],
-                        'Language' => $matches['Language'],
-                        'Relation' => $matches['Relation'],
-                        'Coverage' => $matches['Coverage'],
-                        'Rights' => $matches['Rights']
+                        'Title' => $matches['Title'] ?? '',
+                        'Creator' => $matches['Creator'] ?? '',
+                        'Publication Date' => $matches['PublicationDate'] ?? '',
+                        'Publication Type' => $matches['PublicationType'] ?? '',
+                        'Resource Identifier' => $matches['ResourceIdentifier'] ?? '',
+                        'Contributor' => $matches['Contributor'] ?? '',
+                        'Publisher' => $matches['Publisher'] ?? '',
+                        'Subject' => $matches['Subject'] ?? '',
+                        'Description' => $matches['Description'] ?? '',
+                        'Source' => $matches['Source'] ?? '',
+                        'Language' => $matches['Language'] ?? '',
                     ];
                 }
                 if (empty($metadata)) { //En caso de quedarnos sin creditos
@@ -259,18 +289,18 @@ class userController extends Controller
                 }
 
             } else {
-                /*Conservar esto en caso de que se necesite saber que error hay al usar la API
+                
                 return response()->json([
                     'error' => 'Failed to communicate with the API',
                     'message' => $response->body()
                 ], $response->status());
-                */
-                foreach ($metadata as $key => $value) {
+                
+                /*foreach ($metadata as $key => $value) {
                     if (!empty($value)) {
 
                         Session::put('metadata.' . $key, $value);
                     }
-                }
+                }*/
             }
 
             //dd($response);

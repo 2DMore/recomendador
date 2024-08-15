@@ -1,7 +1,10 @@
 <?php
 
+
+use App\Http\Controllers\UserController;
+
 use App\Http\Controllers\dspaceController;
-use App\Http\Controllers\userController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,8 +18,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+/*Login*/
+Route::post('/userlogin', [UserController::class, 'login']);
+
+Route::post('/register', [UserController::class, 'register']);
+
+Route::post('/logout', [UserController::class, 'logout']);
+
+Route::get('/getUsers', [UserController::class, 'getAllUsers']);
+
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/usuarios',function(){
@@ -62,7 +75,8 @@ Route::get('/notfound',function(){
 
 
 //Documentos
-Route::post('/nuevos/store', [userController::class,'guardarDoc']);
-Route::post('/nuevos/submit', [userController::class,'subirMetadatos']);
+Route::post('/nuevos/store', [UserController::class,'guardarDoc']);
+Route::post('/nuevos/submit', [UserController::class,'subirMetadatos']);
 //Metadatos
 Route::post('/upload/metadatos', [dspaceController::class,'subirMetadatosDspace']);
+

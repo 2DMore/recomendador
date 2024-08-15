@@ -20,39 +20,40 @@
         </div>
 
         <div class="body">
-
-            <div class="inputItem">
-                <label for="">Nombre</label>
-                <div class="inputField">
-                    <input type="text">
+            <form action="/register" method="POST">
+                <div class="inputItem">
+                    <label for="">Nombre</label>
+                    <div class="inputField">
+                        <input name="name" type="text" id="name">
+                    </div>
                 </div>
-            </div>
-            <div class="inputItem">
-                <label for="">Correo</label>
-                <div class="inputField">
-                    <input type="mail">
+                <div class="inputItem">
+                    <label for="">Correo</label>
+                    <div class="inputField">
+                        <input name="email" type="mail" id="email">
+                    </div>
                 </div>
-            </div>
-            <div class="inputItem">
-                <label for="">Contraseña</label>
-                <div class="inputField">
-                    <input type="password">
+                <div class="inputItem">
+                    <label for="">ContraseÃ±a</label>
+                    <div class="inputField">
+                        <input name="password" type="password" id="password">
+                    </div>
                 </div>
-            </div>
-            <div class="inputItem">
-                <label for="">Rol</label>
-                <div class="inputField">
-                    <select>
-                        <option selected>Elige un rol</option>
-                    </select>
+                <div class="inputItem">
+                    <label for="">Rol</label>
+                    <div class="inputField">
+                        <select name="rol" id="rol">
+                            <option value="2">tasker</option>
+                            <option value="3">reviewer</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-
-            <div class="actions">
-                <button class="btn successBtn">Validar</button>
-            </div>
+                @csrf
+                <div class="actions">
+                    <button  type="submit" class="btn successBtn">Validar</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
-
 </html>

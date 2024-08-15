@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="css/list-user.css">
 </head>
 <body>
-    
+
      @include('partials.navbar')
     <div class="content">
         <div class="title">
@@ -39,24 +39,23 @@
                             <button class="btn warningBtn">Editar</button>
                         </td>
                     </tr>
-                    <tr>
-                        <td>Alejandro</td>
-                        <td>alex@hotmail.com</td>
-                        <td>Administrador</td>
-                        <td>
-                            <button class="btn dangerBtn">Eliminar</button>
-                            <button class="btn warningBtn">Editar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Alejandro</td>
-                        <td>alex@hotmail.com</td>
-                        <td>Validador</td>
-                        <td>
-                            <button class="btn dangerBtn">Eliminar</button>
-                            <button class="btn warningBtn">Editar</button>
-                        </td>
-                    </tr>
+                    <?php
+                        $url = 'http://127.0.0.1:8000/getUsers';
+                        $response = file_get_contents($url);
+                        $users = json_decode($response, true);
+
+                        if ($users && is_array($users)) {
+                            foreach ($users as $user) {
+                                echo 'Nombre: ' . htmlspecialchars($user['name']) . '<br>';
+                                echo 'Correo: ' . htmlspecialchars($user['email']) . '<br>';
+                                echo 'Rol: ' . htmlspecialchars($user['rol']) . '<br>';
+                                echo '<hr>';
+                            }
+                        } else {
+                            echo 'No se encontraron usuarios.';
+                        }
+
+                    ?>
                 </tbody>
             </table>
 
