@@ -38,6 +38,11 @@ class UserController extends Controller
         $this->model = new Document();
     }*/
 
+    function getAllUsers() {
+        $users = User::all();
+        return response()->json($users);
+    }
+
     function accion_listar() {
         include ('views/user/list.php');
     }

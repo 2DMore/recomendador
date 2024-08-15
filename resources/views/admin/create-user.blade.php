@@ -43,8 +43,8 @@
                     <label for="">Rol</label>
                     <div class="inputField">
                         <select name="rol" id="rol">
-                            <option value="1">tasker</option>
-                            <option value="1">reviewer</option>
+                            <option value="2">tasker</option>
+                            <option value="3">reviewer</option>
                         </select>
                     </div>
                 </div>

@@ -14,7 +14,6 @@
 </head>
 
 <body>
-
     @auth
         <div class="loginForm">
             <img class="logo" src="images/UADY_logo.svg" alt="" srcset="">
@@ -30,14 +29,10 @@
             <@php
 
             @endphp
+            @csrf
             <img class="logo" src="images/UADY_logo.svg" alt="" srcset="">
-            <form action="/register" method="POST">
+            <form action="/userlogin" method="POST">
                 @csrf
-                <div class="loginField">
-                    <label for="">Usuario</label>
-                    <input name="name" type="text">
-                </div>
-
                 <div class="loginField">
                     <label for="">email</label>
                     <input name="email" type="text">
