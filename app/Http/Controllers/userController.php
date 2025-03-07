@@ -38,41 +38,46 @@ class UserController extends Controller
         $this->model = new Document();
     }*/
 
-    function getAllUsers() {
+    function getAllUsers()
+    {
         $users = User::all();
         return response()->json($users);
     }
 
-    function accion_listar() {
-        include ('views/user/list.php');
+    function accion_listar()
+    {
+        include('views/user/list.php');
     }
 
-    public function logout(){
+    public function logout()
+    {
         auth()->logout();
         return redirect("/");
     }
 
-    public function register(Request $request){
+    public function register(Request $request)
+    {
         $datos = $request->validate([
             'name' => ['required', Rule::unique('users', 'name')],
             'email' => ['required', Rule::unique('users', 'email')],
             'password' => ['required'],
             'rol' => ['required'],
         ]);
-        $datos['password']=bcrypt($datos['password']);
+        $datos['password'] = bcrypt($datos['password']);
         session(['user_type' => $datos['rol']]);
         User::create($datos);
 
         return redirect("/agregar-usuarios");
     }
 
-    public function login(Request $request){
-        $datos= $request->validate([
-            'email'=>'required',
-            'password'=>'required'
+    public function login(Request $request)
+    {
+        $datos = $request->validate([
+            'email' => 'required',
+            'password' => 'required'
         ]);
 
-        if (auth()->attempt(['email' => $datos['email'], 'password'=>$datos['password']])){
+        if (auth()->attempt(['email' => $datos['email'], 'password' => $datos['password']])) {
             $request->session()->regenerate();
             $user = auth()->user();
             session(['user_type' => $user->rol]);
@@ -81,44 +86,49 @@ class UserController extends Controller
         return redirect('/estadisticas');
     }
 
-    function accion_guardar() {
+    function accion_guardar()
+    {
         global $auth_first_page;
-        if(isset($_POST['submit'])) {
+        if (isset($_POST['submit'])) {
             $nameErr = $typeErr = '';
             // echo '<!--' . var_dump($_POST['name']) . '--><br>';
             $fileMoved = $this->moveFile();
-            if ( $fileMoved == 'moved'){
-                header('Location: '. $auth_first_page, true, 303);
+            if ($fileMoved == 'moved') {
+                header('Location: ' . $auth_first_page, true, 303);
             } else {
                 //lanzar error
             }
         }
     }
 
-    function accion_capturados(){
-        include ('views/user/added.php');
+    function accion_capturados()
+    {
+        include('views/user/added.php');
     }
 
-    function accion_validados(){
-        include ('views/user/validated.php');
+    function accion_validados()
+    {
+        include('views/user/validated.php');
     }
 
-    function accion_estadisticas(){
-        include ('views/user/statisticsView.php');
+    function accion_estadisticas()
+    {
+        include('views/user/statisticsView.php');
     }
 
     //enviar çon código de errores en return??NO UTILIZADO
-    function moveFile() {
+    function moveFile()
+    {
         $pdf = $_FILES["pdf"];
-        if($pdf['error']) return 'Error en el archivo';
-        if($pdf['type'] != 'application/pdf') return 'No es un pdf';
+        if ($pdf['error']) return 'Error en el archivo';
+        if ($pdf['type'] != 'application/pdf') return 'No es un pdf';
 
-        $new_name = time() . '.pdf';//add the user's id at the beggining
+        $new_name = time() . '.pdf'; //add the user's id at the beggining
         $location = './uploads/';
         $file_store = $location . $new_name;
         $fileWasMoved = move_uploaded_file($pdf['tmp_name'], $file_store);
 
-        if(!$fileWasMoved) return 'cannot moved';
+        if (!$fileWasMoved) return 'cannot moved';
 
         $parser = new \Smalot\PdfParser\Parser();
         $pdfData = $parser->parseFile($file_store);
@@ -168,35 +178,36 @@ class UserController extends Controller
         // ];
         $this->model->guardar($document);
     }*/
-    
 
-    public function guardarDoc(Request $request){
+
+    public function guardarDoc(Request $request)
+    {
         $request->validate([
-            'pdf'=>'required|mimes:pdf|max:2048'
+            'pdf' => 'required|mimes:pdf|max:2048'
         ]);
 
-        if($request->file('pdf')){
-            $file=$request->file('pdf');
+        if ($request->file('pdf')) {
+            $file = $request->file('pdf');
 
             // Obtener el nombre original del archivo
             $originalName = $file->getClientOriginalName();
 
             // Crear un nombre único para el archivo
             $uniqueName = Str::uuid() . '_' . $originalName;
-            $filePath=$file->storeAs('pdfs',$uniqueName,'public');
+            $filePath = $file->storeAs('pdfs', $uniqueName, 'public');
 
-            $absolutePath=storage_path(('app/public/'.$filePath));
+            $absolutePath = storage_path(('app/public/' . $filePath));
 
             Session::put('pdf_path', $filePath);
 
             //Extracccion de metadatos
-            $parser=new \Smalot\PdfParser\Parser();
-            $parsedPDF=$parser->parseFile($absolutePath);
-            $metadata=$parsedPDF->getDetails();
+            $parser = new \Smalot\PdfParser\Parser();
+            $parsedPDF = $parser->parseFile($absolutePath);
+            $metadata = $parsedPDF->getDetails();
 
-            $text=$parsedPDF->getPages()[0]->getText();
+            $text = $parsedPDF->getPages()[0]->getText();
 
-            $prompt="Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
+            $prompt = "Proporcione los metadatos de Dublin Core para el siguiente texto. La respuesta debe estar en el siguiente formato:\n
                 - Title: [Título del recurso]\n
                 - Creator: [Nombre del autor o creador]\n
                 - Publication Date: [Fecha de publicación]\n
@@ -210,8 +221,8 @@ class UserController extends Controller
                 - Language: [Idioma del recurso]\n\n
                 Texto:" . $text;
 
-            $maxPromptTokens=1024;
-            $tokens=$this->countTokens($prompt);
+            $maxPromptTokens = 5024;
+            $tokens = $this->countTokens($prompt);
 
             if ($tokens > $maxPromptTokens) {
                 // Limitar el texto si excede el número máximo de tokens
@@ -232,41 +243,50 @@ class UserController extends Controller
                 Texto:" . $limitedText;
             }
 
-            $apiKey = env('ANTHROPIC_API_KEY');
-            $url = 'https://api.anthropic.com/v1/messages';
+            $response = UserController::getGemini($text, $prompt);
+            /*
+            $apiKey = env('GOOGLE_GEMINI_API_KEY');
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey";
             //Utilizar model haiku si se consumen muchos tokens
             $response = Http::withHeaders([
-                'x-api-key' => $apiKey,
-                'anthropic-version' => '2023-06-01',
                 'Content-Type' => 'application/json',
             ])->post($url, [
-                'model' => 'claude-3-sonnet-20240229',
-                'max_tokens' => 1024,
-                'messages' => [
-                    ['role' => 'user', 'content' => $prompt]
+                'contents' => [
+                    'role' => 'user',
+                    'parts' => [
+                        'text' => $text
+                    ]
+                ],
+                'systemInstruction' => [
+                    'role' => 'user',
+                    'parts' => [
+                        'text' => $prompt
+                    ]
+
                 ]
             ]);
-
-            if ($response->successful()) {
+            */
+            /*$response->successful()*/
+            if (true) {
                 // Decodificar el mensaje JSON
-                
+
                 $data = json_decode($response, true);
-                
+                //return $data;
                 // Extraer el texto del contenido
-                $text = $data['content'][0]['text'];
+                $text = $data['candidates'][0]['content']['parts'][0]['text'];
 
                 // Expresión regular para extraer los metadatos
                 $pattern = "/- Title:\s*(?<Title>.*?)\n" .
-                "- Creator:\s*(?<Creator>.*?)\n" .
-                "- Publication Date:\s*(?<PublicationDate>.*?)\n" .
-                "- Publication Type:\s*(?<PublicationType>.*?)\n" .
-                "- Resource Identifier:\s*(?<ResourceIdentifier>.*?)\n" .
-                "- Contributor:\s*(?<Contributor>.*?)\n" .
-                "- Publisher:\s*(?<Publisher>.*?)\n" .
-                "- Subject:\s*(?<Subject>.*?)\n" .
-                "- Description:\s*(?<Description>.*?)\n" .
-                "- Source:\s*(?<Source>.*?)\n" .
-                "- Language:\s*(?<Language>.*?)(?:\n|$)/s";
+                    "- Creator:\s*(?<Creator>.*?)\n" .
+                    "- Publication Date:\s*(?<PublicationDate>.*?)\n" .
+                    "- Publication Type:\s*(?<PublicationType>.*?)\n" .
+                    "- Resource Identifier:\s*(?<ResourceIdentifier>.*?)\n" .
+                    "- Contributor:\s*(?<Contributor>.*?)\n" .
+                    "- Publisher:\s*(?<Publisher>.*?)\n" .
+                    "- Subject:\s*(?<Subject>.*?)\n" .
+                    "- Description:\s*(?<Description>.*?)\n" .
+                    "- Source:\s*(?<Source>.*?)\n" .
+                    "- Language:\s*(?<Language>.*?)(?:\n|$)/s";
 
 
                 if (preg_match($pattern, $text, $matches)) {
@@ -287,14 +307,13 @@ class UserController extends Controller
                 if (empty($metadata)) { //En caso de quedarnos sin creditos
                     return response()->json(['error' => 'No metadata found'], 404);
                 }
-
             } else {
-                
+
                 return response()->json([
                     'error' => 'Failed to communicate with the API',
                     'message' => $response->body()
                 ], $response->status());
-                
+
                 /*foreach ($metadata as $key => $value) {
                     if (!empty($value)) {
 
@@ -304,11 +323,11 @@ class UserController extends Controller
             }
 
             //dd($response);
-            
-            
+
+
             Session::put('metadata', $metadata);
 
-            /*Estos datos ponerlos en otra funcion cuando se busque actualizar los metadatos*/ 
+            /*Estos datos ponerlos en otra funcion cuando se busque actualizar los metadatos*/
             /*$pdf=new Document();
             $pdf->title= $metadata['Title'] ?? $originalName;
             $pdf->creator=$metadata['Author'] ?? 'No encontrado';
@@ -317,29 +336,29 @@ class UserController extends Controller
             $pdf->save();*/
 
             return redirect('/nuevos');
-
         }
         return redirect()->back()->withErrors('Error al subir el archivo.');
-
-
     }
 
-    public function subirMetadatos(Request $request){
-        $pdfPath=Session::get('pdf_path');
-        if(!$pdfPath){
+
+
+    public function subirMetadatos(Request $request)
+    {
+        $pdfPath = Session::get('pdf_path');
+        if (!$pdfPath) {
             return redirect()->back()->withErrors('No se encontró el archivo PDF en la sesión.');
         }
-        $document=new Document();
-        $document->access_level= $request->input('access_level') ?? 'No encontrado';
-        $document->license_condition=$request->input('license_condition') ?? 'No encontrado';
-        $document->pub_date=$request->input('pub_date') ?? 'No encontrado';
-        $document->pub_version=$request->input('pub_version') ?? 'No encontrado';
-        $document->pub_id=$request->input('pub_id') ?? 'No encontrado';
-        $document->resource_id=$request->input('resource_id') ?? 'No encontrado';
-        $document->source=$request->input('source') ?? 'No encontrado';
-        $document->embargo_end_date=$request->input('embargo_date') ?? 'No encontrado';
+        $document = new Document();
+        $document->access_level = $request->input('access_level') ?? 'No encontrado';
+        $document->license_condition = $request->input('license_condition') ?? 'No encontrado';
+        $document->pub_date = $request->input('pub_date') ?? 'No encontrado';
+        $document->pub_version = $request->input('pub_version') ?? 'No encontrado';
+        $document->pub_id = $request->input('pub_id') ?? 'No encontrado';
+        $document->resource_id = $request->input('resource_id') ?? 'No encontrado';
+        $document->source = $request->input('source') ?? 'No encontrado';
+        $document->embargo_end_date = $request->input('embargo_date') ?? 'No encontrado';
 
-        $document->path=$pdfPath;
+        $document->path = $pdfPath;
 
 
         $document->save();
@@ -386,7 +405,7 @@ class UserController extends Controller
             $contributors = $request->input('contributor');
             $idContributorTypes = $request->input('id_contributor_type');
             $idContributors = $request->input('id_contributor');
-    
+
             foreach ($contributors as $index => $contributor) {
                 $documentColaborador = new DocumentColaborador();
                 $documentColaborador->document_id = $document->id;
@@ -402,7 +421,7 @@ class UserController extends Controller
             $creators = $request->input('creator');
             $idCreatorTypes = $request->input('id_creator_type');
             $idCreators = $request->input('id_creator');
-    
+
             foreach ($creators as $index => $creator) {
                 $documentCreator = new DocumentCreator();
                 $documentCreator->document_id = $document->id;
@@ -537,10 +556,52 @@ class UserController extends Controller
         return redirect('/nuevos');
     }
 
-    public function countTokens($text) {
+    public function countTokens($text)
+    {
         // Aproximación basada en el número de palabras
         $words = explode(' ', $text);
         $numTokens = count($words) * 1.3; // Aproximación: cada palabra es 1.3 tokens
         return ceil($numTokens);
+    }
+
+
+    public function getGemini($text, $prompt)
+    {
+        $apiKey = getenv('GOOGLE_GEMINI_API_KEY'); // Asegúrate de que tu clave API esté configurada en las variables de entorno
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" . $apiKey;
+
+        $postData = [
+            'contents' => [
+                'role' => 'user',
+                'parts' => [
+                    'text' => $text
+                ]
+
+            ],
+            'systemInstruction' => [
+                'role' => 'user',
+                'parts' => [
+                    'text' => $prompt
+                ]
+            ]
+        ];
+
+        $jsonData = json_encode($postData);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($jsonData)
+        ]);
+        $response = curl_exec($ch);
+        if (curl_errno($ch)) {
+            return 'Error de cURL: ' . curl_error($ch);
+        }
+        curl_close($ch);
+        return $response;
     }
 }
